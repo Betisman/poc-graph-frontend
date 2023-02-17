@@ -43,13 +43,14 @@ const formatNodes = nodes => {
       id: `${node.elementId}`,
       position: newNodePosition,
       data: { label: `${node.properties.name}` },
+      style: { width: '200px' },
     };
   })
 };
 
 const formatEdges = edges => edges.map(edge => ({
   id: `${edge.elementId}:${edge.startNodeElementId}-${edge.endNodeElementId}`, source: `${edge.startNodeElementId}`, target: `${edge.endNodeElementId}`, label: `${edge.type}`, type: 'default',
-    arrowHead: 'default',
+    markerEnd: { type: 'arrowclosed' },
 }));
 
 const Flow = () => {
