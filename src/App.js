@@ -40,11 +40,10 @@ const App = () => {
   const {getGraph} = useGraphHook()
 
   useEffect(() => {
-    const {nodes, edges} = getGraph()
-    setGraph(() => ({
+    getGraph().then(({nodes, edges}) => setGraph(() => ({
       nodes: nodes.map(generateNode),
       edges: edges.map(generateEdge)
-    }))
+    })))
   }, [])
 
   const displayNeighbours = ({nodes: selectedNodes, edges: selectedEdges}) => {
