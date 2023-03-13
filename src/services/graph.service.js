@@ -1,9 +1,29 @@
-import generateGraph from "./mocks";
-
 const GraphService = () => {
-  const getGraph = () => {
-    const graph = generateGraph()
-    return graph
+
+  const mapEdge = ({elementId, properties: {type}, endNodeElementId, startNodeElementId}) => ({
+    from: startNodeElementId,
+    to: endNodeElementId,
+    relationType: type,
+    properties: {
+      elementId,
+    }
+  })
+
+  const mapNode = ({elementId, properties: {name, seniority, legacyId}}) => ({
+    id: elementId,
+    seniority,
+    name,
+    label: name,
+    properties: {
+      legacyId,
+    }
+  })
+
+  const getGraph = async () => {
+    const apiUrl = process.env.REACT_APP_HOST_URL
+    const nodes = await fetch(`${apiUrl}/node/Person`).then(response => response.json())
+    const edges = await fetch(`${apiUrl}/edge`).then(response => response.json())
+    return {nodes: nodes.map(mapNode), edges: edges.map(mapEdge)}
   }
 
   return {
