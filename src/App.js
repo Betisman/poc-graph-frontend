@@ -27,26 +27,27 @@ const App = () => {
       },
       enabled: false,
     },
-    layout: {
-      hierarchical: false
-    },
     edges: {
       smooth: {
         roundness: 0.5
       }
     },
     physics: {
-      repulsion: {
-        centralGravity: 0,
-        springLength: 255,
-        springConstant: 0.08,
-        nodeDistance: 300
+      solver: 'forceAtlas2Based',
+      hierarchicalRepulsion: {
+        avoidOverlap: 1,
       },
       maxVelocity: 150,
       minVelocity: 5,
-      solver: "repulsion",
       timestep: 1
-    }
+    },
+    layout: {
+      hierarchical: {
+        direction: 'UD',
+        sortMethod: 'directed',
+        shakeTowards: 'roots',
+      },
+    },
   })
   const [neighbourMode, setNeighbourMode] = useState(false)
   const [editModeControl, setEditModeControl] = useState(null)
