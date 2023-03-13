@@ -11,7 +11,6 @@ import {
   faDownLeftAndUpRightToCenter,
   faShareNodes,
   faUserPen,
-  faSitemap
 } from "@fortawesome/free-solid-svg-icons";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
@@ -30,7 +29,7 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
   },
 }));
 
-const GraphControls = ({editMode, onChangeEditMode, viewMode, onChangViewMode, className}) => {
+const GraphControls = ({editMode, onChangeEditMode, filterMode, onChangeFilterMode, className}) => {
   return (
     <Paper
       elevation={4}
@@ -65,17 +64,13 @@ const GraphControls = ({editMode, onChangeEditMode, viewMode, onChangViewMode, c
       <Divider flexItem orientation="horizontal" sx={{mx: 0.5, my: 1}}/>
       <StyledToggleButtonGroup
         orientation="vertical"
-        value={viewMode}
-        onChange={(_, selectedValue) => onChangViewMode(selectedValue)}
+        value={filterMode}
+        exclusive
+        onChange={(_, selectedValue) => onChangeFilterMode(selectedValue)}
       >
         <ToggleButton value="filter" aria-label="filter">
           <Tooltip title={"Filter"} placement="right-start">
             <FontAwesomeIcon icon={faFilter}/>
-          </Tooltip>
-        </ToggleButton>
-        <ToggleButton value="hierarchy" aria-label="hierarchy">
-          <Tooltip title={"Enable hierarchy mode"} placement="right-start">
-            <FontAwesomeIcon icon={faSitemap}/>
           </Tooltip>
         </ToggleButton>
       </StyledToggleButtonGroup>

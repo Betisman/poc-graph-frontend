@@ -42,16 +42,14 @@ const App = () => {
       timestep: 1
     },
     layout: {
-      hierarchical: {
-        direction: 'UD',
-        sortMethod: 'directed',
-        shakeTowards: 'roots',
+      layout: {
+        hierarchical: false
       },
     },
   })
   const [neighbourMode, setNeighbourMode] = useState(false)
   const [editModeControl, setEditModeControl] = useState(null)
-  const [viewMode, setViewMode] = useState([])
+  const [filterModeControl, setFilterModeControl] = useState(null)
   const [temporaryEdge, setTemporaryEdge] = useState(null)
   const [temporaryNode, setTemporaryNode] = useState(null)
 
@@ -170,25 +168,6 @@ const App = () => {
     setEditModeControl(null)
   }
 
-  const toggleHierarchyView = (active) => {
-    setNetworkOptions(({layout, physics, ...prevState}) => {
-      if (!active) return {
-        ...prevState,
-        layout: {
-          hierarchical: false
-        },
-      }
-      return {
-        ...prevState,
-        layout: {
-          hierarchical: {
-            direction: 'UD'
-          }
-        },
-      }
-    })
-  }
-
   useEffect(() => {
     const editModeActions = {
       'add-node': () => network?.addNodeMode(),
@@ -199,18 +178,14 @@ const App = () => {
     selectedAction()
   }, [editModeControl, network])
 
-  useEffect(() => {
-    toggleHierarchyView(viewMode.includes('hierarchy'))
-  }, [viewMode])
-
   return (
     <>
       <GraphControls
         className={"button-group"}
         editMode={editModeControl}
         onChangeEditMode={setEditModeControl}
-        viewMode={viewMode}
-        onChangViewMode={setViewMode}
+        filterMode={filterModeControl}
+        onChangeFilterMode={setFilterModeControl}
       />
       <AddNodeModal
         open={!!temporaryNode && (editModeControl === "add-node" || editModeControl === "edit")}
