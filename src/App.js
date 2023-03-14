@@ -41,11 +41,6 @@ const App = () => {
       minVelocity: 5,
       timestep: 1
     },
-    layout: {
-      layout: {
-        hierarchical: false
-      },
-    },
   })
   const [neighbourMode, setNeighbourMode] = useState(false)
   const [editModeControl, setEditModeControl] = useState(null)
