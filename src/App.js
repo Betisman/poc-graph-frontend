@@ -60,9 +60,8 @@ const App = () => {
 
   useEffect(() => {
     if (searchNode) {
-      const position = network.getPosition(searchNode.id);
       const scale = 0.8;
-      network.moveTo({ position, scale });
+      network.focus(searchNode.id, { scale })
       network.selectNodes([searchNode.id]);
     }
   }, [searchNode]);
@@ -126,6 +125,22 @@ const App = () => {
         }))
       }
     });
+    // network?.on('stabilized', (e) => {
+    //   console.log(e)
+    //   if (e.iterations !== 1) {
+    //     setGraph(prevState => ({
+    //       ...prevState,
+    //       nodes: prevState.nodes.map(node => ({
+    //         ...node,
+    //         physics: false,
+    //       })),
+    //     }));
+    //     setNetworkOptions(prevState => ({
+    //       ...prevState,
+    //       physics: false,
+    //     }));
+    //   }
+    // });
   }, [network])
 
   const handleSaveNode = () => {
