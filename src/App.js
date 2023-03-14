@@ -61,7 +61,9 @@ const App = () => {
   useEffect(() => {
     if (searchNode) {
       const position = network.getPosition(searchNode.id);
-      network.moveTo({ position });
+      const scale = 0.8;
+      network.moveTo({ position, scale });
+      network.selectNodes([searchNode.id]);
     }
   }, [searchNode]);
 
