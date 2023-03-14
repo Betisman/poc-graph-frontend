@@ -52,6 +52,7 @@ const App = () => {
   const [filterModeControl, setFilterModeControl] = useState(null)
   const [temporaryEdge, setTemporaryEdge] = useState(null)
   const [temporaryNode, setTemporaryNode] = useState(null)
+  const [searchNode, setSearchNode] = useState(null)
 
   const {getGraph} = useGraphHook()
 
@@ -59,8 +60,15 @@ const App = () => {
     getGraph().then(({nodes, edges}) => setGraph(() => ({
       nodes: nodes.map(generateNode),
       edges: edges.map(generateEdge)
-    })))
-  }, [])
+    })));
+  }, []);
+
+  useEffect(() => {
+    if (searchNode) {
+      const position = network.getPosition(searchNode.id);
+      network.moveTo({ position });
+    }
+  }, [searchNode]);
 
   const displayNeighbours = ({nodes: selectedNodes, edges: selectedEdges}) => {
     setGraph(prevState => {
@@ -186,6 +194,8 @@ const App = () => {
         onChangeEditMode={setEditModeControl}
         filterMode={filterModeControl}
         onChangeFilterMode={setFilterModeControl}
+        nodes={graph.nodes}
+        onChangeSearch={setSearchNode}
       />
       <AddNodeModal
         open={!!temporaryNode && (editModeControl === "add-node" || editModeControl === "edit")}
