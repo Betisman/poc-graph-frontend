@@ -1,5 +1,6 @@
-import React, {useState, useEffect} from "react";
-import VisGraph from "react-vis-graph-wrapper";
+import React, {useState, useEffect, useRef} from "react";
+import {Network} from "vis-network"
+import {DataSet, DataView} from "vis-data";
 import './App.css';
 
 import AddNodeModal from "./components/AddModals/AddNodeModal";
@@ -38,7 +39,7 @@ const App = () => {
         avoidOverlap: 1,
       },
       forceAtlas2Based: {
-        avoidOverlap: 0.4 ,
+        avoidOverlap: 0.4,
         gravitationalConstant: -26,
         centralGravity: 0.005,
         springLength: 230,
@@ -56,20 +57,78 @@ const App = () => {
   const [temporaryNode, setTemporaryNode] = useState(null)
   const [searchNode, setSearchNode] = useState(null)
   const [stabilized, setStabilized] = useState(null)
+  const [dataset, setDataset] = useState({})
 
   const {getGraph} = useGraphHook()
 
+  const visJsRef = useRef(null);
+
   useEffect(() => {
-    getGraph().then(({nodes, edges}) => setGraph(() => ({
-      nodes: nodes.map(generateNode),
-      edges: edges.map(generateEdge)
-    })));
+    getGraph().then(({nodes, edges}) => {
+      setGraph(() => ({nodes, edges}))
+      const nodesDataset = new DataSet(nodes.map(generateNode))
+      const edgesDataset = new DataSet(edges.map(generateEdge))
+      setDataset(() => ({
+        nodes: nodesDataset,
+        edges: edgesDataset,
+      }))
+      const network = new Network(
+        visJsRef.current,
+        {nodes: nodesDataset, edges: edgesDataset},
+        {
+          physics: {
+            solver: 'forceAtlas2Based',
+            hierarchicalRepulsion: {
+              avoidOverlap: 1,
+            },
+            forceAtlas2Based: {
+              avoidOverlap: 0.4,
+              gravitationalConstant: -26,
+              centralGravity: 0.005,
+              springLength: 230,
+              springConstant: 0.18,
+            },
+            maxVelocity: 150,
+            minVelocity: 2,
+            timestep: 1
+          },
+        },
+      );
+      setNetwork(network)
+      network.on("doubleClick", (({nodes, edges}) => {
+        if (!nodes.length) {
+          nodesDataset.update(nodesDataset.map(item => ({
+            ...item,
+            hidden: false,
+          })))
+        } else {
+          const nodesToShow = new Set(nodes)
+          edgesDataset.get(edges).forEach(({from, to}) => {
+            if (from) nodesToShow.add(from)
+            if (to) nodesToShow.add(to)
+          })
+          nodesDataset.update(nodesDataset.map(item => ({
+            ...item,
+            ...(!nodesToShow.has(item.id) ? {hidden: true} : {hidden: false})
+          })))
+        }
+      }))
+      // document.addEventListener('keyup', (event) => {
+      //   if (!network) return
+      //   if (event.code === 'Backspace') {
+      //     const selectedNodes = network.getSelectedNodes();
+      //     const selectedEdges = network.getSelectedEdges();
+      //     nodesDataset.remove(selectedNodes)
+      //     edgesDataset.remove(selectedEdges)
+      //   }
+      // })
+    })
   }, []);
 
   useEffect(() => {
     if (searchNode) {
       const scale = 0.8;
-      network.focus(searchNode.id, { scale })
+      network.focus(searchNode.id, {scale})
       network.selectNodes([searchNode.id]);
     }
   }, [searchNode]);
@@ -121,13 +180,13 @@ const App = () => {
     dragEnd: () => !neighbourMode && network.selectNodes([]),
     doubleClick: displayNeighbours,
     stabilized: e => {
-      !stabilized && network?.fit({ animation: true });
+      !stabilized && network?.fit({animation: true});
       if (e.iterations > 1) {
         setStabilized(true);
       }
     },
     startStabilizing: e => {
-      !stabilized && network?.moveTo({ scale: 0.4 })
+      !stabilized && network?.moveTo({scale: 0.4})
     }
   }
 
@@ -197,7 +256,7 @@ const App = () => {
     }
     const selectedAction = editModeActions[editModeControl] || editModeActions.null
     selectedAction()
-  }, [editModeControl, network])
+  }, [editModeControl])
 
   return (
     <>
@@ -232,11 +291,12 @@ const App = () => {
         open={editModeControl === 'add-edge'}
         message={'Click on a Node and drag to other Node'}
       />
-      <VisGraph
-        graph={graph}
-        events={events}
-        options={networkOptions}
-        getNetwork={network => setNetwork(network)}
+      <div
+        ref={visJsRef}
+        style={{
+          height: '100%',
+          width: '100%'
+        }}
       />
     </>
   )
