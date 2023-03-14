@@ -37,6 +37,13 @@ const App = () => {
       hierarchicalRepulsion: {
         avoidOverlap: 1,
       },
+      forceAtlas2Based: {
+        avoidOverlap: 0.4 ,
+        gravitationalConstant: -26,
+        centralGravity: 0.005,
+        springLength: 230,
+        springConstant: 0.18,
+      },
       maxVelocity: 150,
       minVelocity: 5,
       timestep: 1
@@ -48,6 +55,7 @@ const App = () => {
   const [temporaryEdge, setTemporaryEdge] = useState(null)
   const [temporaryNode, setTemporaryNode] = useState(null)
   const [searchNode, setSearchNode] = useState(null)
+  const [stabilized, setStabilized] = useState(null)
 
   const {getGraph} = useGraphHook()
 
@@ -112,6 +120,15 @@ const App = () => {
     },
     dragEnd: () => !neighbourMode && network.selectNodes([]),
     doubleClick: displayNeighbours,
+    stabilized: e => {
+      !stabilized && network?.fit({ animation: true });
+      if (e.iterations > 1) {
+        setStabilized(true);
+      }
+    },
+    startStabilizing: e => {
+      !stabilized && network?.moveTo({ scale: 0.4 })
+    }
   }
 
   useEffect(() => {
@@ -125,22 +142,6 @@ const App = () => {
         }))
       }
     });
-    // network?.on('stabilized', (e) => {
-    //   console.log(e)
-    //   if (e.iterations !== 1) {
-    //     setGraph(prevState => ({
-    //       ...prevState,
-    //       nodes: prevState.nodes.map(node => ({
-    //         ...node,
-    //         physics: false,
-    //       })),
-    //     }));
-    //     setNetworkOptions(prevState => ({
-    //       ...prevState,
-    //       physics: false,
-    //     }));
-    //   }
-    // });
   }, [network])
 
   const handleSaveNode = () => {
