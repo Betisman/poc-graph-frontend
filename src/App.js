@@ -64,10 +64,13 @@ const App = () => {
               setTemporaryNode({...data, label: "", seniority: ""})
             },
             addEdge: (data, callback) => {
-              setTemporaryEdge({...data, label: ""})
+              setTemporaryEdge({...data, label: "", relation: ""})
             },
             editNode: (data, callback) => {
               setTemporaryNode({...data})
+            },
+            editEdge: (data, callback) => {
+              setTemporaryEdge({...data})
             }
           }
         },
@@ -123,7 +126,9 @@ const App = () => {
   }
 
   const handleSaveEdge = () => {
-    dataset.edges.add(generateEdge(temporaryEdge))
+    const currentEdge = dataset.edges.get([temporaryEdge.id])?.[0] || {}
+    const generatedEdge = generateEdge({...currentEdge, ...temporaryEdge})
+    dataset.edges.update(generatedEdge)
     setTemporaryEdge(null)
     setEditModeControl(null)
   }
@@ -142,7 +147,10 @@ const App = () => {
     const editModeActions = {
       'add-node': () => network?.addNodeMode(),
       'add-edge': () => network?.addEdgeMode(),
-      edit: () => network?.editNode(),
+      edit: () => {
+        network?.editNode()
+        network?.editEdgeMode()
+      },
       null: () => network?.disableEditMode()
     }
     const selectedAction = editModeActions[editModeControl] || editModeActions.null

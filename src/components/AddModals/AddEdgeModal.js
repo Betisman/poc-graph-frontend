@@ -34,8 +34,8 @@ const AddEdgeModal = ({open, relation, setRelation, onClose, onSave}) => {
               onChange={(event) => setRelation(event.target.value)}
               value={relation}
             >
-              <MenuItem value={"operationalby"}>Operational By</MenuItem>
-              <MenuItem value={"mentorizedby"}>Mentorized By</MenuItem>
+              <MenuItem value={"OPERATIONAL BY"}>Operational By</MenuItem>
+              <MenuItem value={"MENTORIZED BY"}>Mentorized By</MenuItem>
             </Select>
           </FormControl>
           <FormControl sx={{marginTop: '20px'}}>
