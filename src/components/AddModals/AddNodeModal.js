@@ -42,6 +42,8 @@ const AddNodeModal = ({open, onClose, onSave, name, setName, seniority, setSenio
               onChange={(event) => setSeniority(event.target.value)}
               value={seniority}
             >
+              <MenuItem value={"dir"}>Director</MenuItem>
+              <MenuItem value={"archdm"}>Architect/Delivery Manager</MenuItem>
               <MenuItem value={"senior"}>Senior</MenuItem>
               <MenuItem value={"medior"}>Medior</MenuItem>
               <MenuItem value={"junior"}>Junior</MenuItem>
