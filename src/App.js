@@ -16,47 +16,12 @@ import generateEdge from "./lib/transformEdge";
 const App = () => {
   const [network, setNetwork] = useState(null)
   const [graph, setGraph] = useState({nodes: [], edges: []})
-  const [networkOptions, setNetworkOptions] = useState({
-    manipulation: {
-      addNode: (data, _) => {
-        setTemporaryNode(data)
-      },
-      addEdge: (data, _) => {
-        if (data.from !== data.to) {
-          setTemporaryEdge(data)
-        }
-      },
-      enabled: false,
-    },
-    edges: {
-      smooth: {
-        roundness: 0.5
-      }
-    },
-    physics: {
-      solver: 'forceAtlas2Based',
-      hierarchicalRepulsion: {
-        avoidOverlap: 1,
-      },
-      forceAtlas2Based: {
-        avoidOverlap: 0.4,
-        gravitationalConstant: -26,
-        centralGravity: 0.005,
-        springLength: 230,
-        springConstant: 0.18,
-      },
-      maxVelocity: 150,
-      minVelocity: 5,
-      timestep: 1
-    },
-  })
   const [neighbourMode, setNeighbourMode] = useState(false)
   const [editModeControl, setEditModeControl] = useState(null)
   const [filterModeControl, setFilterModeControl] = useState(null)
   const [temporaryEdge, setTemporaryEdge] = useState(null)
   const [temporaryNode, setTemporaryNode] = useState(null)
   const [searchNode, setSearchNode] = useState(null)
-  const [stabilized, setStabilized] = useState(null)
   const [dataset, setDataset] = useState({})
 
   const {getGraph} = useGraphHook()
@@ -92,6 +57,11 @@ const App = () => {
             minVelocity: 2,
             timestep: 1
           },
+          manipulation: {
+            addNode: (data, callback) => {
+              setTemporaryNode({...data, label: "", seniority: ""})
+            }
+          }
         },
       );
       setNetwork(network)
@@ -113,15 +83,19 @@ const App = () => {
           })))
         }
       }))
-      // document.addEventListener('keyup', (event) => {
-      //   if (!network) return
-      //   if (event.code === 'Backspace') {
-      //     const selectedNodes = network.getSelectedNodes();
-      //     const selectedEdges = network.getSelectedEdges();
-      //     nodesDataset.remove(selectedNodes)
-      //     edgesDataset.remove(selectedEdges)
-      //   }
-      // })
+
+      network.on("select", ({ nodes }) => {
+        console.log(nodes)
+      })
+      document.addEventListener('keyup', (event) => {
+        if (!network) return
+        if (event.code === 'Backspace') {
+          const selectedNodes = network.getSelectedNodes();
+          const selectedEdges = network.getSelectedEdges();
+          nodesDataset.remove(selectedNodes)
+          edgesDataset.remove(selectedEdges)
+        }
+      })
     })
   }, []);
 
@@ -132,29 +106,6 @@ const App = () => {
       network.selectNodes([searchNode.id]);
     }
   }, [searchNode]);
-
-  const displayNeighbours = ({nodes: selectedNodes, edges: selectedEdges}) => {
-    setGraph(prevState => {
-      if (!selectedNodes.length) return prevState
-      const nodesToShow = new Set(selectedNodes);
-      selectedEdges
-        .map(edge => prevState.edges.find(({id}) => id === edge))
-        .forEach(edge => {
-          if (edge.from) nodesToShow.add(edge.from)
-          if (edge.to) nodesToShow.add(edge.to)
-        })
-
-      const modifiedNodes = prevState.nodes.map((node) => {
-        if (!nodesToShow.has(node.id)) return {...node, hidden: true}
-        return {...node, hidden: false};
-      })
-      setNeighbourMode(true)
-      return {
-        ...prevState,
-        nodes: modifiedNodes,
-      }
-    })
-  }
 
   const getNode = id => graph.nodes.find(({id: nodeId}) => id === nodeId)
 
@@ -178,51 +129,10 @@ const App = () => {
       }
     },
     dragEnd: () => !neighbourMode && network.selectNodes([]),
-    doubleClick: displayNeighbours,
-    stabilized: e => {
-      !stabilized && network?.fit({animation: true});
-      if (e.iterations > 1) {
-        setStabilized(true);
-      }
-    },
-    startStabilizing: e => {
-      !stabilized && network?.moveTo({scale: 0.4})
-    }
   }
 
-  useEffect(() => {
-    document.addEventListener('keyup', (event) => {
-      if (!network) return
-      if (event.code === 'Backspace') {
-        setGraph(prevState => ({
-          ...prevState,
-          nodes: deleteEntities(prevState.nodes, network.getSelectedNodes()),
-          edges: deleteEntities(prevState.edges, network.getSelectedEdges()),
-        }))
-      }
-    });
-  }, [network])
-
   const handleSaveNode = () => {
-    const node = {...temporaryNode}
-    const currentNodeIndex = getNodeIndex(node.id)
-    if (currentNodeIndex === -1) {
-      setGraph(prevState => ({
-        ...prevState,
-        nodes: [
-          ...prevState.nodes,
-          generateNode({id: node.id, name: node.label, seniority: node.seniority, x: node.x, y: node.y})
-        ]
-      }))
-    } else {
-      setGraph(prevState => {
-        prevState.nodes[currentNodeIndex] = generateNode(node)
-        return {
-          ...prevState,
-          nodes: [...prevState.nodes]
-        }
-      })
-    }
+    dataset.nodes.add(generateNode(temporaryNode))
     setTemporaryNode(null)
     setEditModeControl(null)
   }
@@ -270,12 +180,12 @@ const App = () => {
         onChangeSearch={setSearchNode}
       />
       <AddNodeModal
-        open={!!temporaryNode && (editModeControl === "add-node" || editModeControl === "edit")}
+        open={!!temporaryNode}
         onClose={handleCloseAddNode}
         onSave={handleSaveNode}
-        name={temporaryNode?.label || ""}
+        name={temporaryNode?.label}
         setName={(value) => setTemporaryNode(prevState => ({...prevState, label: value}))}
-        seniority={temporaryNode?.seniority || ""}
+        seniority={temporaryNode?.seniority}
         setSeniority={(value) => setTemporaryNode(prevState => ({...prevState, seniority: value}))}
       />
       <AddEdgeModal
