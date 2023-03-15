@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from "react";
 import {Network} from "vis-network"
-import {DataSet, DataView} from "vis-data";
+import {DataSet} from "vis-data";
 import './App.css';
 
 import AddNodeModal from "./components/AddModals/AddNodeModal";
@@ -107,7 +107,6 @@ const App = () => {
         }
       })
     })
-      // .finally(() => setLoading(false))
   }, []);
 
   useEffect(() => {
