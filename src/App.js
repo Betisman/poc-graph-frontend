@@ -60,6 +60,9 @@ const App = () => {
           manipulation: {
             addNode: (data, callback) => {
               setTemporaryNode({...data, label: "", seniority: ""})
+            },
+            addEdge: (data, callback) => {
+              setTemporaryEdge({...data, label: ""})
             }
           }
         },
@@ -137,13 +140,8 @@ const App = () => {
     setEditModeControl(null)
   }
 
-  const handleAddEdge = (relationType) => {
-    const from = temporaryEdge.from
-    const to = temporaryEdge.to
-    setGraph(prevState => ({
-      ...prevState,
-      edges: [...prevState.edges, generateEdge({from, to, relationType})]
-    }))
+  const handleSaveEdge = () => {
+    dataset.edges.add(generateEdge(temporaryEdge))
     setTemporaryEdge(null)
     setEditModeControl(null)
   }
@@ -153,7 +151,7 @@ const App = () => {
     setEditModeControl(null)
   }
 
-  const handleCloseEdge = () => {
+  const handleCloseEdgeModal = () => {
     setTemporaryEdge(null)
     setEditModeControl(null)
   }
@@ -190,8 +188,10 @@ const App = () => {
       />
       <AddEdgeModal
         open={!!temporaryEdge}
-        onClose={handleCloseEdge}
-        onAdd={handleAddEdge}
+        onClose={handleCloseEdgeModal}
+        onSave={handleSaveEdge}
+        relation={temporaryEdge?.label}
+        setRelation={(value) => setTemporaryEdge(prevState => ({...prevState, label: value}))}
       />
       <Snackbar
         open={editModeControl === 'add-node'}

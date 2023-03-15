@@ -1,4 +1,4 @@
-const generateLink = ({from, to, relationType}) => {
+const generateLink = ({from, to, label}) => {
   const linkColors = {
     operationalby: '#93ffdf',
     mentorizedby: '#f893ff',
@@ -7,8 +7,8 @@ const generateLink = ({from, to, relationType}) => {
   return {
     from,
     to,
-    label: relationType?.toUpperCase() || 'UNKNOWN',
-    color: linkColors[relationType?.toLowerCase().replace(' ','') || 'unknown'],
+    label: label?.toUpperCase() || 'UNKNOWN',
+    color: linkColors[label?.toLowerCase().replace(' ','') || 'unknown'],
     shadow: true,
     width: 2,
     // font: {face: 'Ubuntu'},
