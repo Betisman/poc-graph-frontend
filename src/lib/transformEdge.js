@@ -12,6 +12,9 @@ const generateLink = ({from, to, relationType}) => {
     shadow: true,
     width: 2,
     // font: {face: 'Ubuntu'},
+    arrows: {
+      to: { enabled: true }
+    }
   }
 }
 
