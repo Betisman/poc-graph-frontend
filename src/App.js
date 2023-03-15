@@ -16,7 +16,6 @@ import generateEdge from "./lib/transformEdge";
 const App = () => {
   const [network, setNetwork] = useState(null)
   const [graph, setGraph] = useState({nodes: [], edges: []})
-  const [neighbourMode, setNeighbourMode] = useState(false)
   const [editModeControl, setEditModeControl] = useState(null)
   const [filterModeControl, setFilterModeControl] = useState(null)
   const [temporaryEdge, setTemporaryEdge] = useState(null)
@@ -63,6 +62,9 @@ const App = () => {
             },
             addEdge: (data, callback) => {
               setTemporaryEdge({...data, label: ""})
+            },
+            editNode: (data, callback) => {
+              setTemporaryNode({...data})
             }
           }
         },
@@ -87,9 +89,6 @@ const App = () => {
         }
       }))
 
-      network.on("select", ({ nodes }) => {
-        console.log(nodes)
-      })
       document.addEventListener('keyup', (event) => {
         if (!network) return
         if (event.code === 'Backspace') {
@@ -110,32 +109,9 @@ const App = () => {
     }
   }, [searchNode]);
 
-  const getNode = id => graph.nodes.find(({id: nodeId}) => id === nodeId)
-
-  const getNodeIndex = id => graph.nodes.findIndex(({id: nodeIndex}) => id === nodeIndex)
-
-  const setNodesVisibility = (nodes, state) => nodes.map(node => ({...node, hidden: state}))
-
-  const deleteEntities = (currentEntities, idsToDelete) => currentEntities.filter(({id}) => !idsToDelete.includes(id))
-
-  const events = {
-    select: ({nodes}) => {
-      const selectedNode = getNode(nodes[0])
-      if (!selectedNode) {
-        setNeighbourMode(false)
-        setGraph(prevState => ({
-          ...prevState,
-          nodes: setNodesVisibility(prevState.nodes, false)
-        }))
-      } else {
-        setTemporaryNode(selectedNode)
-      }
-    },
-    dragEnd: () => !neighbourMode && network.selectNodes([]),
-  }
-
   const handleSaveNode = () => {
-    dataset.nodes.add(generateNode(temporaryNode))
+    const currentNode = dataset.nodes.get([temporaryNode.id])?.[0] || {}
+    dataset.nodes.update(generateNode({...currentNode, ...temporaryNode}))
     setTemporaryNode(null)
     setEditModeControl(null)
   }
@@ -160,6 +136,7 @@ const App = () => {
     const editModeActions = {
       'add-node': () => network?.addNodeMode(),
       'add-edge': () => network?.addEdgeMode(),
+      edit: () => network?.editNode(),
       null: () => network?.disableEditMode()
     }
     const selectedAction = editModeActions[editModeControl] || editModeActions.null
