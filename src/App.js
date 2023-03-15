@@ -8,11 +8,21 @@ import GraphControls from "./components/GraphControls/GraphControls";
 import AddEdgeModal from "./components/AddModals/AddEdgeModal";
 import Backdrop from "./components/Backdrop/Backdrop";
 import Snackbar from '@mui/material/Snackbar';
+import Button from '@mui/material/Button';
 
 import useGraphHook from "./hooks/useGraph.hook";
 
 import generateNode from "./lib/transformNode";
 import generateEdge from "./lib/transformEdge";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import FormGroup from "@mui/material/FormGroup";
+import FormControl from "@mui/material/FormControl";
+import TextField from "@mui/material/TextField";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import Modal from "@mui/material/Modal";
 
 const App = () => {
   const [loading, setLoading] = useState(false)
@@ -24,6 +34,9 @@ const App = () => {
   const [temporaryNode, setTemporaryNode] = useState(null)
   const [searchNode, setSearchNode] = useState(null)
   const [dataset, setDataset] = useState({})
+
+  const [zlatanModalOpen, setZlatanModalOpen] = useState(false)
+  const [zlatanMode, setZlatanMode] = useState({scorer: false, assistant: false})
 
   const {getGraph} = useGraphHook()
 
@@ -193,6 +206,47 @@ const App = () => {
         open={editModeControl === 'add-edge'}
         message={'Click on a Node and drag to other Node'}
       />
+      <div className={"login-button"}>
+        <Button variant="outlined" onClick={() => setZlatanModalOpen(true)}>Login</Button>
+      </div>
+      <Modal sx={{zIndex: 2}} open={zlatanModalOpen} onClose={() => setZlatanModalOpen(false)}>
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <FormGroup>
+            <FormControl variant={"standard"} sx={{margin: '10px 0px'}}>
+              <TextField
+                id="scorer"
+                label="Scorer"
+                variant="standard"
+                onChange={(event) => setZlatanMode(prevState => ({...prevState, scorer: event.target.value === process.env.REACT_APP_SCORER}))}/>
+            </FormControl>
+            <FormControl variant={"standard"} sx={{margin: '10px 0px'}}>
+              <TextField
+                id="assistant"
+                label="Assistant"
+                variant="standard"
+                onChange={(event) => setZlatanMode(prevState => ({...prevState, assistant: event.target.value === process.env.REACT_APP_ASSISTANT}))}/>
+            </FormControl>
+            <FormControl sx={{marginTop: '20px'}}>
+              <Button
+                sx={{width: '30%', margin: 'auto'}}
+                onClick={() => setZlatanModalOpen(false)}
+                variant="outlined"
+              >
+                Try
+              </Button>
+            </FormControl>
+          </FormGroup>
+        </Box>
+      </Modal>
       <div
         ref={visJsRef}
         style={{

@@ -5,6 +5,13 @@
     margin-left: 50px;
 }
 
+.login-button {
+    position: absolute;
+    z-index: 1;
+    right: 20px;
+    margin-top: 2px;
+}
+
 .vis-network {
     background-color: #f5f5f5;
 }
