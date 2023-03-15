@@ -6,6 +6,7 @@ import './App.css';
 import AddNodeModal from "./components/AddModals/AddNodeModal";
 import GraphControls from "./components/GraphControls/GraphControls";
 import AddEdgeModal from "./components/AddModals/AddEdgeModal";
+import Backdrop from "./components/Backdrop/Backdrop";
 import Snackbar from '@mui/material/Snackbar';
 
 import useGraphHook from "./hooks/useGraph.hook";
@@ -14,6 +15,7 @@ import generateNode from "./lib/transformNode";
 import generateEdge from "./lib/transformEdge";
 
 const App = () => {
+  const [loading, setLoading] = useState(false)
   const [network, setNetwork] = useState(null)
   const [graph, setGraph] = useState({nodes: [], edges: []})
   const [editModeControl, setEditModeControl] = useState(null)
@@ -28,6 +30,7 @@ const App = () => {
   const visJsRef = useRef(null);
 
   useEffect(() => {
+    setLoading(true)
     getGraph().then(({nodes, edges}) => {
       setGraph(() => ({nodes, edges}))
       const nodesDataset = new DataSet(nodes.map(generateNode))
@@ -89,6 +92,8 @@ const App = () => {
         }
       }))
 
+      network.on("afterDrawing", () => setLoading(false))
+
       document.addEventListener('keyup', (event) => {
         if (!network) return
         if (event.code === 'Backspace') {
@@ -99,6 +104,7 @@ const App = () => {
         }
       })
     })
+      // .finally(() => setLoading(false))
   }, []);
 
   useEffect(() => {
@@ -145,7 +151,9 @@ const App = () => {
 
   return (
     <>
-      <GraphControls
+      <Backdrop open={loading}/>
+      {!loading &&
+        <GraphControls
         className={"button-group"}
         editMode={editModeControl}
         onChangeEditMode={setEditModeControl}
@@ -153,7 +161,7 @@ const App = () => {
         onChangeFilterMode={setFilterModeControl}
         nodes={graph.nodes}
         onChangeSearch={setSearchNode}
-      />
+      />}
       <AddNodeModal
         open={!!temporaryNode}
         onClose={handleCloseAddNode}
