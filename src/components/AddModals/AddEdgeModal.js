@@ -9,8 +9,7 @@ import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import Button from '@mui/material/Button';
 
-const AddEdgeModal = ({open, onClose, onAdd}) => {
-  const [relation, setRelation] = useState('')
+const AddEdgeModal = ({open, relation, setRelation, onClose, onSave}) => {
 
   return (
     <Modal sx={{zIndex: 2}} open={open} onClose={onClose}>
@@ -33,21 +32,20 @@ const AddEdgeModal = ({open, onClose, onAdd}) => {
             <Select
               labelId="relation-select"
               onChange={(event) => setRelation(event.target.value)}
-              defaultValue={""}
+              value={relation}
             >
-              <MenuItem value={"soft"}>Soft Skills</MenuItem>
-              <MenuItem value={"hard"}>Hard Skills</MenuItem>
-              <MenuItem value={"operational"}>Operational</MenuItem>
+              <MenuItem value={"operationalby"}>Operational By</MenuItem>
+              <MenuItem value={"mentorizedby"}>Mentorized By</MenuItem>
             </Select>
           </FormControl>
           <FormControl sx={{marginTop: '20px'}}>
             <Button
               sx={{width: '30%', margin: 'auto'}}
-              onClick={() => onAdd(relation)}
+              onClick={() => onSave()}
               variant="outlined"
               disabled={!relation}
             >
-              Add
+              Save
             </Button>
           </FormControl>
         </FormGroup>

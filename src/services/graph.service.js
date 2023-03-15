@@ -3,7 +3,7 @@ const GraphService = () => {
   const mapEdge = ({elementId, properties: {type}, endNodeElementId, startNodeElementId}) => ({
     from: startNodeElementId,
     to: endNodeElementId,
-    relationType: type,
+    label: type,
     properties: {
       elementId,
     }
